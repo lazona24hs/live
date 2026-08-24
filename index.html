@@ -5,27 +5,135 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radio FM - En Vivo</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; color: #333; }
-        header { background: #1a1a2e; color: #fff; padding: 20px; text-align: center; }
-        .player { background: #e94560; color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
-        .schedule { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .schedule th, .schedule td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .schedule th { background-color: #0f3460; color: white; }
-        footer { background: #1a1a2e; color: white; text-align: center; padding: 15px; margin-top: 40px; }
+        /* Fondo animado estilo neón/cyberpunk */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(-45deg, #0f0c20, #1a0b2e, #111d38, #050515);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Encabezado */
+        header {
+            text-align: center;
+            padding: 40px 20px 10px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            text-shadow: 0 0 15px rgba(233, 69, 96, 0.6), 0 0 30px rgba(233, 69, 96, 0.4);
+        }
+
+        /* Reproductor Neón Sticky */
+        .player-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid #e94560;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 20px rgba(233, 69, 96, 0.2);
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* Punto parpadeante para EN VIVO */
+        .live-badge {
+            display: inline-block;
+            background: #e94560;
+            color: #fff;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            box-shadow: 0 0 12px #e94560;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        audio {
+            margin-top: 15px;
+            filter: drop-shadow(0 0 8px rgba(233, 69, 96, 0.5));
+            border-radius: 30px;
+        }
+
+        /* Contenedor con efecto Glassmorphism */
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .glass-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Tabla estilizada con animaciones */
+        .schedule {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .schedule th {
+            text-align: left;
+            padding: 14px;
+            color: #00fff0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule td {
+            padding: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .schedule tr:hover td {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+            color: #00fff0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>📻 Mi Radio FM</h1>
-        <p>La mejor música y noticias las 24 horas</p>
+        <h1>📻 Mi Radio Online</h1>
+        <p>Música, energía y noticias en vivo</p>
     </header>
 
-    <!-- Reproductor en vivo -->
-    <div class="player">
-        <span>🔴 EN VIVO: Programa Mañanas Activas</span>
-        <br><br>
+    <div class="player-card">
+        <span class="live-badge">🔴 EN VIVO</span>
+        <h3 style="margin: 10px 0 5px;">Programa: Mañanas Activas</h3>
         <audio controls autoplay>
             <source src="TU_URL_DE_STREAMING_AQUI" type="audio/mpeg">
             Tu navegador no soporta el reproductor de audio.
@@ -33,37 +141,39 @@
     </div>
 
     <div class="container">
-        <h2>📅 Programación de Hoy</h2>
-        <table class="schedule">
-            <thead>
-                <tr>
-                    <th>Horario</th>
-                    <th>Programa</th>
-                    <th>Conductor</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>08:00 - 12:00</td>
-                    <td>Mañanas Activas</td>
-                    <td>Juan Pérez</td>
-                </tr>
-                <tr>
-                    <td>12:00 - 14:00</td>
-                    <td>Resumen de Noticias</td>
-                    <td>Maria Gómez</td>
-                </tr>
-                <tr>
-                    <td>14:00 - 18:00</td>
-                    <td>Tarde de Exitos</td>
-                    <td>Carlos Rodríguez</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="glass-box">
+            <h2 style="margin-top: 0; color: #e94560;">📅 Grilla de Programación</h2>
+            <table class="schedule">
+                <thead>
+                    <tr>
+                        <th>Horario</th>
+                        <th>Programa</th>
+                        <th>Locutor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>08:00 - 12:00</td>
+                        <td>Mañanas Activas</td>
+                        <td>Juan Pérez</td>
+                    </tr>
+                    <tr>
+                        <td>12:00 - 14:00</td>
+                        <td>Resumen Informativo</td>
+                        <td>María Gómez</td>
+                    </tr>
+                    <tr>
+                        <td>14:00 - 18:00</td>
+                        <td>Tarde de Éxitos</td>
+                        <td>Carlos Rodríguez</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <footer>
-        <p>© 2026 Mi Radio FM - Contacto: contacto@miradio.com | WhatsApp: +54 9 341 000-0000</p>
+        <p>© 2026 Mi Radio FM · Todos los derechos reservados</p>
     </footer>
 
 </body>
