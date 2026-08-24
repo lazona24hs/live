@@ -122,10 +122,96 @@
             color: #888;
             font-size: 0.9rem;
         }
+
+
+          /* Estilos del aviso emergente estilo Toast/Push */
+    .notice-banner {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 380px;
+        background: rgba(20, 20, 35, 0.95);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(233, 69, 96, 0.5);
+        border-left: 5px solid #e94560;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(233, 69, 96, 0.2);
+        padding: 16px;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    .notice-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #fff;
+    }
+
+    .notice-icon {
+        font-size: 1.8rem;
+    }
+
+    .notice-content strong {
+        display: block;
+        color: #00fff0;
+        font-size: 0.95rem;
+    }
+
+    .notice-content p {
+        margin: 4px 0 0;
+        font-size: 0.85rem;
+        color: #ccc;
+    }
+
+    .notice-close {
+        background: #e94560;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.8rem;
+        transition: transform 0.2s, background 0.2s;
+    }
+
+    .notice-close:hover {
+        background: #ff5277;
+        transform: scale(1.05);
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
     </style>
 </head>
 <body>
 
+<!-- Banner de Sitio en Construcción -->
+<div id="construction-banner" class="notice-banner">
+    <div class="notice-content">
+        <span class="notice-icon">🚧</span>
+        <div>
+            <strong>¡Sitio en construcción!</strong>
+            <p>Estamos trabajando en nuevas funciones. La señal de audio funciona con normalidad.</p>
+        </div>
+        <button class="notice-close" onclick="closeNotice()">Aceptar</button>
+    </div>
+</div>
+
+
+<script>
+    function closeNotice() {
+        const banner = document.getElementById('construction-banner');
+        banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        banner.style.opacity = '0';
+        banner.style.transform = 'translateY(20px)';
+        setTimeout(() => banner.remove(), 400);
+    }
+</script>
+    
     <header>
         <h1>📻 Mi Radio Online</h1>
         <p>Música, energía y noticias en vivo</p>
