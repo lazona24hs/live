@@ -587,7 +587,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            flex: 1;
+            width: 100%;
         }
 
         .btn-cancelar {
@@ -844,7 +844,6 @@
                 <textarea id="mensaje-radio" rows="3" placeholder="Envía un saludo a la audiencia o al locutor..."></textarea>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn-submit" onclick="enviarMensajeRadioDirecto()">Enviar a Radio</button>
                     <button type="button" class="btn-whatsapp" onclick="enviarAPedidoWhatsApp()">Enviar WhatsApp</button>
                 </div>
                 <div style="margin-top:10px;">
@@ -898,15 +897,15 @@
     <div id="modal-contacto" class="modal-overlay">
         <div class="modal-content">
             <h3>Contacto</h3>
-            <form onsubmit="alert('Mensaje enviado con éxito'); cerrarModal('modal-contacto'); return false;">
+            <form action="mailto:contacto@eradio.com" method="post" enctype="text/plain">
                 <label for="c-nombre">Nombre:</label>
-                <input type="text" id="c-nombre" placeholder="Tu nombre" required>
+                <input type="text" id="c-nombre" name="Nombre" placeholder="Tu nombre" required>
 
                 <label for="c-email">Correo Electrónico:</label>
-                <input type="email" id="c-email" placeholder="correo@ejemplo.com" required>
+                <input type="email" id="c-email" name="Email" placeholder="correo@ejemplo.com" required>
 
                 <label for="c-mensaje">Mensaje:</label>
-                <textarea id="c-mensaje" rows="4" placeholder="Escribe tu consulta o mensaje publicitario..." required></textarea>
+                <textarea id="c-mensaje" name="Mensaje" rows="4" placeholder="Escribe tu consulta o mensaje publicitario..." required></textarea>
 
                 <div class="modal-actions">
                     <button type="submit" class="btn-submit">Enviar Mensaje</button>
@@ -1091,20 +1090,6 @@
 
             const urlWhatsapp = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsapp, '_blank');
-            cerrarModal('modal-cancion');
-            document.getElementById('form-cancion').reset();
-        }
-
-        function enviarMensajeRadioDirecto() {
-            const nombre = document.getElementById('nombre').value;
-            const cancion = document.getElementById('cancion').value;
-
-            if (!nombre || !cancion) {
-                alert('Por favor completa tu nombre y la canción.');
-                return;
-            }
-
-            alert(`¡Gracias ${nombre}! Tu pedido de "${cancion}" y tu mensaje han sido enviados a los estudios de la radio.`);
             cerrarModal('modal-cancion');
             document.getElementById('form-cancion').reset();
         }
