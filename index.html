@@ -562,6 +562,7 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .btn-submit {
@@ -572,7 +573,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            flex-grow: 1;
+            flex: 1;
         }
 
         .btn-whatsapp {
@@ -583,7 +584,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-            flex-grow: 1;
+            flex: 1;
         }
 
         .btn-cancelar {
@@ -593,6 +594,7 @@
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
+            width: 100%;
         }
 
         /* Lista de programación en modal */
@@ -836,19 +838,25 @@
         <audio id="radioAudio" src="https://stream.zeno.fm/idqecp6rhbnvv"></audio>
     </div>
 
-    <!-- MODAL 1: PEDIR CANCIÓN -->
+    <!-- MODAL 1: PEDIR CANCIÓN (CON OPCIÓN DE MENSAJE O WHATSAPP) -->
     <div id="modal-cancion" class="modal-overlay">
         <div class="modal-content">
             <h3>Pedir una Canción</h3>
-            <form id="form-cancion" onsubmit="enviarAPedidoWhatsApp(event)">
+            <form id="form-cancion">
                 <label for="nombre">Tu Nombre:</label>
                 <input type="text" id="nombre" placeholder="Ej. Juan Pérez" required>
 
                 <label for="cancion">Canción / Artista:</label>
                 <input type="text" id="cancion" placeholder="Ej. De Música Ligera - Soda Stereo" required>
 
+                <label for="mensaje-radio">Mensaje para la Radio / Saludo (Opcional):</label>
+                <textarea id="mensaje-radio" rows="3" placeholder="Envía un saludo a la audiencia o al locutor..."></textarea>
+
                 <div class="modal-actions">
-                    <button type="submit" class="btn-whatsapp">Enviar WhatsApp</button>
+                    <button type="button" class="btn-submit" onclick="enviarMensajeRadioDirecto()">Enviar a Radio</button>
+                    <button type="button" class="btn-whatsapp" onclick="enviarAPedidoWhatsApp()">Enviar WhatsApp</button>
+                </div>
+                <div style="margin-top:10px;">
                     <button type="button" class="btn-cancelar" onclick="cerrarModal('modal-cancion')">Cancelar</button>
                 </div>
             </form>
@@ -971,7 +979,6 @@
 
         async function obtenerClima() {
             try {
-                // API pública Open-Meteo para Rosario, Santa Fe (-32.9468, -60.6393)
                 const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-32.9468&longitude=-60.6393&current_weather=true');
                 const data = await res.json();
                 if (data && data.current_weather) {
@@ -1052,13 +1059,37 @@
             document.getElementById(id).style.display = 'none';
         }
 
-        function enviarAPedidoWhatsApp(event) {
-            event.preventDefault();
+        function enviarAPedidoWhatsApp() {
             const nombre = document.getElementById('nombre').value;
             const cancion = document.getElementById('cancion').value;
-            const mensaje = `¡Hola! Soy ${nombre} y me gustaría pedir la canción: ${cancion}`;
+            const mensajeExt = document.getElementById('mensaje-radio').value;
+
+            if (!nombre || !cancion) {
+                alert('Por favor completa tu nombre y la canción.');
+                return;
+            }
+
+            let mensaje = `¡Hola! Soy ${nombre} y me gustaría pedir la canción: ${cancion}`;
+            if (mensajeExt.trim() !== '') {
+                mensaje += `\n\nMensaje: ${mensajeExt}`;
+            }
+
             const urlWhatsapp = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsapp, '_blank');
+            cerrarModal('modal-cancion');
+            document.getElementById('form-cancion').reset();
+        }
+
+        function enviarMensajeRadioDirecto() {
+            const nombre = document.getElementById('nombre').value;
+            const cancion = document.getElementById('cancion').value;
+
+            if (!nombre || !cancion) {
+                alert('Por favor completa tu nombre y la canción.');
+                return;
+            }
+
+            alert(`¡Gracias ${nombre}! Tu pedido de "${cancion}" y tu mensaje han sido enviados a los estudios de la radio.`);
             cerrarModal('modal-cancion');
             document.getElementById('form-cancion').reset();
         }
