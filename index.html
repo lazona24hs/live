@@ -531,7 +531,7 @@
     <div class="container" id="inicio">
         <!-- Noticias RSS -->
         <main>
-            <h2 class="section-title">Últimas Noticias (LOS40)</h2>
+            <h2 class="section-title">Últimas Noticias</h2>
             <div id="rss-news" class="news-grid">
                 <div class="loading">Cargando las últimas noticias...</div>
             </div>
@@ -673,8 +673,8 @@
             themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
         });
 
-        // 2. Cargar RSS de LOS40 mediante AllOrigins
-        const RSS_URL = 'https://los40.com/rss/los40/portada.xml'; 
+        // 2. Cargar RSS mediante AllOrigins
+        const RSS_URL = 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/cultura-y-espectaculos/notas'; 
         const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(RSS_URL)}`;
 
         async function cargarNoticiasRSS() {
