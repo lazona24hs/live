@@ -86,6 +86,7 @@
             text-transform: uppercase;
             font-size: 0.85rem;
             transition: color 0.3s;
+            cursor: pointer;
         }
 
         nav a:hover {
@@ -439,6 +440,81 @@
             cursor: pointer;
         }
 
+        /* ESTILOS MODAL / POPUP PEDIR CANCIÓN */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-border);
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            border-left: 3px solid var(--accent-red);
+            padding-left: 8px;
+        }
+
+        .modal-content label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 10px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: var(--bg-main);
+            border: 1px solid var(--accent-border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            flex-grow: 1;
+        }
+
+        .btn-cancelar {
+            background-color: transparent;
+            border: 1px solid var(--accent-border);
+            color: var(--text-primary);
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         /* PIE DE PÁGINA (FOOTER) */
         footer {
             background-color: var(--bg-header);
@@ -502,7 +578,7 @@
         
         <nav>
             <a href="#inicio">Inicio</a>
-            <a href="#pedir-canciones">Pedir Canciones</a>
+            <a onclick="abrirModalPedirCancion(event)">Pedir Canciones</a>
             <a href="#programacion">Programación</a>
             <a href="#contacto">Contacto</a>
         </nav>
@@ -531,7 +607,7 @@
     <div class="container" id="inicio">
         <!-- Noticias RSS -->
         <main>
-            <h2 class="section-title">Últimas Noticias</h2>
+            <h2 class="section-title">Noticias de Actualidad</h2>
             <div id="rss-news" class="news-grid">
                 <div class="loading">Cargando las últimas noticias...</div>
             </div>
@@ -624,7 +700,26 @@
             <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="0.8">
         </div>
 
-        <audio id="radioAudio" src="https://stream.zeno.fm/idqecp6rhbnvv"></audio>
+        <audio id="radioAudio" src="https://playerservices.streamtheworld.com/api/livestream-redirect/LOS40_ARGENTINAAAC"></audio>
+    </div>
+
+    <!-- MODAL / POPUP PEDIR CANCIÓN -->
+    <div id="modal-cancion" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Pedir una Canción</h3>
+            <form id="form-cancion" onsubmit="enviarAPedidoWhatsApp(event)">
+                <label for="nombre">Tu Nombre:</label>
+                <input type="text" id="nombre" placeholder="Ej. Juan Pérez" required>
+
+                <label for="cancion">Canción / Artista:</label>
+                <input type="text" id="cancion" placeholder="Ej. De Música Ligera - Soda Stereo" required>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-whatsapp">Enviar WhatsApp</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModalPedirCancion()">Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Pie de Página (Footer) -->
@@ -641,7 +736,7 @@
                 <h3>Enlaces Rápidos</h3>
                 <ul>
                     <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#pedir-canciones">Pedir canciones</a></li>
+                    <li><a onclick="abrirModalPedirCancion(event)" style="cursor:pointer;">Pedir canciones</a></li>
                     <li><a href="#programacion">Programación</a></li>
                     <li><a href="#contacto">Contacto</a></li>
                 </ul>
@@ -665,6 +760,9 @@
 
     <!-- Lógica JavaScript -->
     <script>
+        // Configuración de WhatsApp (Reemplaza por tu número con código de país, ej: 549341xxxxxxx)
+        const NUMERO_WHATSAPP = "540000";
+
         // 1. Apagar / Encender la luz (Theme Toggle)
         const themeToggleBtn = document.getElementById('themeToggle');
         
@@ -673,43 +771,29 @@
             themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
         });
 
-        // 2. Cargar RSS mediante AllOrigins
-        const RSS_URL = 'https://www.pagina12.com.ar/arc/outboundfeeds/rss/suplementos/cultura-y-espectaculos/notas'; 
-        const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(RSS_URL)}`;
-
+        // 2. Cargar RSS Noticias Actualidad (Vía RSS2JSON API)
         async function cargarNoticiasRSS() {
             const container = document.getElementById('rss-news');
+            const rssUrl = 'https://news.google.com/rss?hl=es-419&gl=US&ceid=US:es-419';
+            const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
             try {
-                const response = await fetch(PROXY_URL);
+                const response = await fetch(apiUrl);
                 const data = await response.json();
                 
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
-                const items = xmlDoc.querySelectorAll("item");
-
-                if (items && items.length > 0) {
+                if (data.status === 'ok' && data.items.length > 0) {
                     container.innerHTML = '';
-                    Array.from(items).slice(0, 6).forEach(item => {
-                        const title = item.querySelector("title")?.textContent || "Noticia de Música";
-                        const link = item.querySelector("link")?.textContent || "#";
-                        const pubDate = item.querySelector("pubDate")?.textContent || "";
-                        
-                        let image = "https://via.placeholder.com/400x200/161616/ffffff?text=LOS40+Musica";
-                        const enclosure = item.querySelector("enclosure");
-                        const mediaContent = item.getElementsByTagName("media:content")[0];
-                        
-                        if (enclosure && enclosure.getAttribute("url")) {
-                            image = enclosure.getAttribute("url");
-                        } else if (mediaContent && mediaContent.getAttribute("url")) {
-                            image = mediaContent.getAttribute("url");
-                        }
-
+                    data.items.slice(0, 6).forEach(item => {
+                        const title = item.title;
+                        const link = item.link;
+                        const pubDate = item.pubDate;
+                        const image = item.thumbnail || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400";
                         const fechaFormateada = pubDate ? new Date(pubDate).toLocaleDateString() : 'Reciente';
 
                         const card = document.createElement('div');
                         card.className = 'news-card';
                         card.innerHTML = `
-                            <img src="${image}" alt="${title}" onerror="this.src='https://via.placeholder.com/400x200/161616/ffffff?text=LOS40'">
+                            <img src="${image}" alt="${title}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=400'">
                             <div class="news-card-content">
                                 <a href="${link}" target="_blank" rel="noopener" class="news-card-title">${title}</a>
                                 <div class="news-card-date">${fechaFormateada}</div>
@@ -718,7 +802,7 @@
                         container.appendChild(card);
                     });
                 } else {
-                    container.innerHTML = '<div class="loading">No se pudieron cargar las noticias.</div>';
+                    container.innerHTML = '<div class="loading">No se pudieron cargar las noticias actuales.</div>';
                 }
             } catch (error) {
                 container.innerHTML = '<div class="loading">Error de conexión al cargar el feed de noticias.</div>';
@@ -726,7 +810,31 @@
         }
         cargarNoticiasRSS();
 
-        // 3. Reproductor Flotante de Radio
+        // 3. Popup y Envío de Canciones a WhatsApp
+        function abrirModalPedirCancion(event) {
+            if (event) event.preventDefault();
+            document.getElementById('modal-cancion').style.display = 'flex';
+        }
+
+        function cerrarModalPedirCancion() {
+            document.getElementById('modal-cancion').style.display = 'none';
+        }
+
+        function enviarAPedidoWhatsApp(event) {
+            event.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const cancion = document.getElementById('cancion').value;
+            
+            const mensaje = `¡Hola! Soy ${nombre} y me gustaría pedir la canción: ${cancion}`;
+            const urlWhatsapp = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
+            
+            window.open(urlWhatsapp, '_blank');
+            cerrarModalPedirCancion();
+            document.getElementById('form-cancion').reset();
+        }
+
+        // 4. Reproductor Flotante de Radio
         const audio = document.getElementById('radioAudio');
         const playBtn = document.getElementById('playBtn');
         const equalizer = document.getElementById('equalizer');
