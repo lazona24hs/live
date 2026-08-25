@@ -11,6 +11,7 @@
             --bg-card: #161616;
             --bg-player: #111111;
             --bg-header: #000000;
+            --bg-topbar: #121212;
             --text-primary: #ffffff;
             --text-secondary: #aaaaaa;
             --accent-red: #e50914;
@@ -24,6 +25,7 @@
             --bg-card: #ffffff;
             --bg-player: #ffffff;
             --bg-header: #ffffff;
+            --bg-topbar: #e9e9ee;
             --text-primary: #111111;
             --text-secondary: #666666;
             --accent-red: #e50914;
@@ -44,6 +46,34 @@
             color: var(--text-primary);
             line-height: 1.6;
             padding-bottom: 90px;
+        }
+
+        /* Barra Superior: Fecha, Hora y Tiempo */
+        .top-bar {
+            background-color: var(--bg-topbar);
+            border-bottom: 1px solid var(--accent-border);
+            padding: 6px 5%;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .top-bar-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .weather-widget {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
         /* Encabezado Principal */
@@ -99,7 +129,6 @@
             gap: 15px;
         }
 
-        /* Enlaces a Redes Sociales */
         .social-links {
             display: flex;
             align-items: center;
@@ -119,7 +148,6 @@
             fill: var(--accent-red);
         }
 
-        /* Botón Apagar/Encender Luz */
         .theme-toggle-btn {
             background: transparent;
             border: 1px solid var(--accent-border);
@@ -138,6 +166,47 @@
         .theme-toggle-btn:hover {
             border-color: var(--accent-red);
             color: var(--accent-red);
+        }
+
+        /* Espacios de Publicidad */
+        .ad-banner-horizontal {
+            max-width: 1200px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+        }
+
+        .ad-box {
+            background-color: var(--bg-card);
+            border: 2px dashed var(--accent-border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-box span {
+            font-size: 0.65rem;
+            opacity: 0.6;
+            margin-bottom: 4px;
+        }
+
+        .ad-horizontal {
+            width: 100%;
+            height: 90px;
+        }
+
+        .ad-sidebar {
+            width: 100%;
+            height: 250px;
+            margin-bottom: 30px;
         }
 
         /* Estructura Principal Grid */
@@ -440,7 +509,7 @@
             cursor: pointer;
         }
 
-        /* ESTILOS MODAL / POPUP PEDIR CANCIÓN */
+        /* ESTILOS MODALES / POPUPS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -458,7 +527,7 @@
             padding: 25px;
             border-radius: 8px;
             width: 90%;
-            max-width: 380px;
+            max-width: 450px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
@@ -478,7 +547,7 @@
             margin-top: 10px;
         }
 
-        .modal-content input {
+        .modal-content input, .modal-content textarea {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -493,6 +562,17 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+        }
+
+        .btn-submit {
+            background-color: var(--accent-red);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            flex-grow: 1;
         }
 
         .btn-whatsapp {
@@ -513,6 +593,34 @@
             padding: 10px 15px;
             border-radius: 4px;
             cursor: pointer;
+        }
+
+        /* Lista de programación en modal */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: var(--bg-main);
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .schedule-time {
+            font-weight: bold;
+            color: var(--accent-red);
+            font-size: 0.85rem;
+        }
+
+        .schedule-title {
+            font-size: 0.9rem;
+            color: var(--text-primary);
         }
 
         /* PIE DE PÁGINA (FOOTER) */
@@ -572,6 +680,20 @@
 </head>
 <body>
 
+    <!-- Barra Superior: Fecha, Hora y Tiempo -->
+    <div class="top-bar">
+        <div class="top-bar-info">
+            <span id="fecha-actual">Cargando fecha...</span>
+            <span>•</span>
+            <span id="hora-actual">00:00:00</span>
+        </div>
+        <div class="weather-widget">
+            <span>📍 Rosario, Santa Fe:</span>
+            <span id="clima-temp">--°C</span>
+            <span id="clima-desc">🌤️ Cargando tiempo...</span>
+        </div>
+    </div>
+
     <!-- Encabezado -->
     <header>
         <div class="logo">E-<span>RADIO</span></div>
@@ -579,21 +701,18 @@
         <nav>
             <a href="#inicio">Inicio</a>
             <a onclick="abrirModalPedirCancion(event)">Pedir Canciones</a>
-            <a href="#programacion">Programación</a>
-            <a href="#contacto">Contacto</a>
+            <a onclick="abrirModalProgramacion(event)">Programación</a>
+            <a onclick="abrirModalContacto(event)">Contacto</a>
         </nav>
 
         <div class="header-actions">
             <div class="social-links">
-                <!-- TikTok -->
                 <a href="https://www.tiktok.com" target="_blank" rel="noopener" title="TikTok">
                     <svg class="social-icon" viewBox="0 0 24 24"><path d="M12.525 2.003c1.31 0 2.422.031 3.23.082V6.2a8.68 8.68 0 0 1-2.912-.512 8.78 8.78 0 0 1-2.484-1.46V15.5c0 1.253-.406 2.422-1.156 3.375C8.303 19.922 7.11 20.5 5.75 20.5 3.125 20.5 1 18.375 1 15.75c0-2.625 2.125-4.75 4.75-4.75.406 0 .812.062 1.219.156V15.1c-.281-.094-.594-.156-.938-.156-1.125 0-2.031.906-2.031 2.031 0 1.125.906 2.031 2.031 2.031 1.094 0 1.969-.875 2.031-1.938V2h3.469z"/></svg>
                 </a>
-                <!-- Instagram -->
                 <a href="https://www.instagram.com" target="_blank" rel="noopener" title="Instagram">
                     <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
                 </a>
-                <!-- WhatsApp -->
                 <a href="https://api.whatsapp.com/send?phone=540000" target="_blank" rel="noopener" title="WhatsApp">
                     <svg class="social-icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99 0-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                 </a>
@@ -602,6 +721,14 @@
             <button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema">🌙</button>
         </div>
     </header>
+
+    <!-- Publicidad Horizontal Superior -->
+    <div class="ad-banner-horizontal">
+        <div class="ad-box ad-horizontal">
+            <span>Espacio Publicitario</span>
+            Espacio disponible para tu Marca o Empresa
+        </div>
+    </div>
 
     <!-- Contenido -->
     <div class="container" id="inicio">
@@ -615,6 +742,12 @@
 
         <!-- Columna Lateral -->
         <aside>
+            <!-- Publicidad Lateral -->
+            <div class="ad-box ad-sidebar">
+                <span>Espacio Publicitario</span>
+                Anúnciate Aquí
+            </div>
+
             <!-- Widget Video de la semana -->
             <div class="sidebar-box">
                 <h2 class="section-title">Video de la Semana</h2>
@@ -703,7 +836,7 @@
         <audio id="radioAudio" src="https://stream.zeno.fm/idqecp6rhbnvv"></audio>
     </div>
 
-    <!-- MODAL / POPUP PEDIR CANCIÓN -->
+    <!-- MODAL 1: PEDIR CANCIÓN -->
     <div id="modal-cancion" class="modal-overlay">
         <div class="modal-content">
             <h3>Pedir una Canción</h3>
@@ -716,33 +849,92 @@
 
                 <div class="modal-actions">
                     <button type="submit" class="btn-whatsapp">Enviar WhatsApp</button>
-                    <button type="button" class="btn-cancelar" onclick="cerrarModalPedirCancion()">Cancelar</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modal-cancion')">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PROGRAMACIÓN -->
+    <div id="modal-programacion" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Programación General</h3>
+            <div class="schedule-list">
+                <div class="schedule-item">
+                    <div>
+                        <div class="schedule-title">El Mañanero</div>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">Con Juan & Laura</span>
+                    </div>
+                    <div class="schedule-time">06:00 - 09:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div>
+                        <div class="schedule-title">Rosario Hits</div>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">Lo mejor del Pop & Urbano</span>
+                    </div>
+                    <div class="schedule-time">09:00 - 13:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div>
+                        <div class="schedule-title">Tarde Total</div>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">Música y noticias al día</span>
+                    </div>
+                    <div class="schedule-time">13:00 - 18:00</div>
+                </div>
+                <div class="schedule-item">
+                    <div>
+                        <div class="schedule-title">La Previa Nocturna</div>
+                        <span style="font-size:0.75rem; color:var(--text-secondary);">DJ Set Live</span>
+                    </div>
+                    <div class="schedule-time">18:00 - 00:00</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancelar" style="width:100%;" onclick="cerrarModal('modal-programacion')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: CONTACTO -->
+    <div id="modal-contacto" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Contacto</h3>
+            <form onsubmit="alert('Mensaje enviado con éxito'); cerrarModal('modal-contacto'); return false;">
+                <label for="c-nombre">Nombre:</label>
+                <input type="text" id="c-nombre" placeholder="Tu nombre" required>
+
+                <label for="c-email">Correo Electrónico:</label>
+                <input type="email" id="c-email" placeholder="correo@ejemplo.com" required>
+
+                <label for="c-mensaje">Mensaje:</label>
+                <textarea id="c-mensaje" rows="4" placeholder="Escribe tu consulta o mensaje publicitario..." required></textarea>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-submit">Enviar Mensaje</button>
+                    <button type="button" class="btn-cancelar" onclick="cerrarModal('modal-contacto')">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Pie de Página (Footer) -->
-    <footer id="contacto">
+    <footer>
         <div class="footer-grid">
-            <!-- Quiénes Somos -->
             <div class="footer-col">
                 <h3>Quiénes Somos</h3>
                 <p>Somos <strong>E-Radio</strong>, la radio líder en música urbana, hits del momento y entretenimiento. Transmitiendo con la mejor energía desde Rosario, Santa Fe para todo el país.</p>
             </div>
 
-            <!-- Enlaces Rápidos -->
             <div class="footer-col">
                 <h3>Enlaces Rápidos</h3>
                 <ul>
                     <li><a href="#inicio">Inicio</a></li>
                     <li><a onclick="abrirModalPedirCancion(event)" style="cursor:pointer;">Pedir canciones</a></li>
-                    <li><a href="#programacion">Programación</a></li>
-                    <li><a href="#contacto">Contacto</a></li>
+                    <li><a onclick="abrirModalProgramacion(event)" style="cursor:pointer;">Programación</a></li>
+                    <li><a onclick="abrirModalContacto(event)" style="cursor:pointer;">Contacto</a></li>
                 </ul>
             </div>
 
-            <!-- Contacto -->
             <div class="footer-col">
                 <h3>Contacto</h3>
                 <ul>
@@ -760,18 +952,48 @@
 
     <!-- Lógica JavaScript -->
     <script>
-        // Configuración de WhatsApp (Reemplaza por tu número con código de país, ej: 549341xxxxxxx)
         const NUMERO_WHATSAPP = "540000";
 
-        // 1. Apagar / Encender la luz (Theme Toggle)
+        // 1. Reloj, Fecha y Clima
+        function actualizarFechaHora() {
+            const ahora = new Date();
+            
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('fecha-actual').textContent = ahora.toLocaleDateString('es-ES', opcionesFecha);
+
+            const hora = String(ahora.getHours()).padStart(2, '0');
+            const minutos = String(ahora.getMinutes()).padStart(2, '0');
+            const segundos = String(ahora.getSeconds()).padStart(2, '0');
+            document.getElementById('hora-actual').textContent = `${hora}:${minutos}:${segundos}`;
+        }
+        setInterval(actualizarFechaHora, 1000);
+        actualizarFechaHora();
+
+        async function obtenerClima() {
+            try {
+                // API pública Open-Meteo para Rosario, Santa Fe (-32.9468, -60.6393)
+                const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-32.9468&longitude=-60.6393&current_weather=true');
+                const data = await res.json();
+                if (data && data.current_weather) {
+                    const temp = Math.round(data.current_weather.temperature);
+                    document.getElementById('clima-temp').textContent = `${temp}°C`;
+                    document.getElementById('clima-desc').textContent = '🌡️ Actualizado';
+                }
+            } catch (e) {
+                document.getElementById('clima-temp').textContent = '22°C';
+                document.getElementById('clima-desc').textContent = '☀️ Despejado';
+            }
+        }
+        obtenerClima();
+
+        // 2. Apagar / Encender la luz (Theme Toggle)
         const themeToggleBtn = document.getElementById('themeToggle');
-        
         themeToggleBtn.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
             themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
         });
 
-        // 2. Cargar RSS Noticias Actualidad (Vía RSS2JSON API)
+        // 3. Cargar RSS Noticias Actualidad
         async function cargarNoticiasRSS() {
             const container = document.getElementById('rss-news');
             const rssUrl = 'https://news.google.com/rss?hl=es-419&gl=US&ceid=US:es-419';
@@ -810,36 +1032,42 @@
         }
         cargarNoticiasRSS();
 
-        // 3. Popup y Envío de Canciones a WhatsApp
+        // 4. Control de Modales / Popups
         function abrirModalPedirCancion(event) {
             if (event) event.preventDefault();
             document.getElementById('modal-cancion').style.display = 'flex';
         }
 
-        function cerrarModalPedirCancion() {
-            document.getElementById('modal-cancion').style.display = 'none';
+        function abrirModalProgramacion(event) {
+            if (event) event.preventDefault();
+            document.getElementById('modal-programacion').style.display = 'flex';
+        }
+
+        function abrirModalContacto(event) {
+            if (event) event.preventDefault();
+            document.getElementById('modal-contacto').style.display = 'flex';
+        }
+
+        function cerrarModal(id) {
+            document.getElementById(id).style.display = 'none';
         }
 
         function enviarAPedidoWhatsApp(event) {
             event.preventDefault();
-            
             const nombre = document.getElementById('nombre').value;
             const cancion = document.getElementById('cancion').value;
-            
             const mensaje = `¡Hola! Soy ${nombre} y me gustaría pedir la canción: ${cancion}`;
             const urlWhatsapp = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`;
-            
             window.open(urlWhatsapp, '_blank');
-            cerrarModalPedirCancion();
+            cerrarModal('modal-cancion');
             document.getElementById('form-cancion').reset();
         }
 
-        // 4. Reproductor Flotante de Radio
+        // 5. Reproductor Flotante de Radio
         const audio = document.getElementById('radioAudio');
         const playBtn = document.getElementById('playBtn');
         const equalizer = document.getElementById('equalizer');
         const volumeSlider = document.getElementById('volumeSlider');
-
         let isPlaying = false;
 
         playBtn.addEventListener('click', () => {
