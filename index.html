@@ -3,264 +3,754 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radio FM - En Vivo</title>
+    <title>E-Radio - Rosario, Santa Fe | Radio y Música</title>
     <style>
-        /* Fondo animado estilo neón/cyberpunk */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Variables de Tema Oscuro (Por defecto) */
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-card: #161616;
+            --bg-player: #111111;
+            --bg-header: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-red: #e50914;
+            --accent-border: #222222;
+            --icon-color: #ffffff;
+        }
+
+        /* Variables de Tema Claro (Light Mode) */
+        body.light-mode {
+            --bg-main: #f4f4f7;
+            --bg-card: #ffffff;
+            --bg-player: #ffffff;
+            --bg-header: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --accent-red: #e50914;
+            --accent-border: #e0e0e0;
+            --icon-color: #111111;
+        }
+
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(-45deg, #0f0c20, #1a0b2e, #111d38, #050515);
-            background-size: 400% 400%;
-            animation: gradientBG 12s ease infinite;
-            color: #fff;
-            min-height: 100vh;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 90px;
         }
 
-        /* Encabezado */
+        /* Encabezado Principal */
         header {
-            text-align: center;
-            padding: 40px 20px 10px;
-        }
-
-        header h1 {
-            font-size: 2.8rem;
-            margin: 0;
-            text-shadow: 0 0 15px rgba(233, 69, 96, 0.6), 0 0 30px rgba(233, 69, 96, 0.4);
-        }
-
-        /* Reproductor Neón Sticky */
-        .player-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-bottom: 2px solid #e94560;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), 0 0 20px rgba(233, 69, 96, 0.2);
-            padding: 20px;
-            text-align: center;
+            background-color: var(--bg-header);
+            border-bottom: 2px solid var(--accent-border);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        /* Punto parpadeante para EN VIVO */
-        .live-badge {
-            display: inline-block;
-            background: #e94560;
-            color: #fff;
-            font-weight: bold;
-            padding: 5px 12px;
-            border-radius: 20px;
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: var(--accent-red);
+        }
+
+        /* Navegación Principal */
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
             font-size: 0.85rem;
-            box-shadow: 0 0 12px #e94560;
-            animation: pulse 1.5s infinite;
+            transition: color 0.3s;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+        nav a:hover {
+            color: var(--accent-red);
         }
 
-        audio {
-            margin-top: 15px;
-            filter: drop-shadow(0 0 8px rgba(233, 69, 96, 0.5));
-            border-radius: 30px;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Contenedor con efecto Glassmorphism */
+        /* Enlaces a Redes Sociales */
+        .social-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .social-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--icon-color);
+            transition: transform 0.2s, fill 0.2s;
+            display: inline-block;
+        }
+
+        .social-icon:hover {
+            transform: scale(1.15);
+            fill: var(--accent-red);
+        }
+
+        /* Botón Apagar/Encender Luz */
+        .theme-toggle-btn {
+            background: transparent;
+            border: 1px solid var(--accent-border);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        /* Estructura Principal Grid */
         .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
         }
 
-        .glass-box {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        @media (max-width: 850px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            header {
+                justify-content: center;
+                text-align: center;
+            }
         }
 
-        /* Tabla estilizada con animaciones */
-        .schedule {
+        .section-title {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-red);
+            padding-left: 10px;
+        }
+
+        /* Grid de Noticias RSS */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .news-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-red);
+        }
+
+        .news-card img {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+            height: 180px;
+            object-fit: cover;
         }
 
-        .schedule th {
-            text-align: left;
-            padding: 14px;
-            color: #00fff0;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        .news-card-content {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
-        .schedule td {
-            padding: 14px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: background 0.3s ease, transform 0.2s ease;
+        .news-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            text-decoration: none;
         }
 
-        .schedule tr:hover td {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(5px);
-            color: #00fff0;
+        .news-card-title:hover {
+            color: var(--accent-red);
         }
 
-        footer {
+        .news-card-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: auto;
+        }
+
+        /* Sidebar Widgets */
+        .sidebar-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--accent-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: 0;
+        }
+
+        /* Widget Ranking Top 4 */
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-bottom: 1px solid var(--accent-border);
+        }
+
+        .ranking-number {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--accent-red);
+            min-width: 20px;
+        }
+
+        .ranking-info {
+            flex-grow: 1;
+        }
+
+        .ranking-song {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .ranking-artist {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .mini-audio {
+            width: 110px;
+            height: 30px;
+        }
+
+        .loading {
+            grid-column: 1 / -1;
             text-align: center;
-            padding: 30px;
-            color: #888;
-            font-size: 0.9rem;
+            padding: 40px;
+            color: var(--text-secondary);
         }
 
+        /* REPRODUCTOR FLOTANTE */
+        .radio-player-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: var(--bg-player);
+            border-top: 1px solid var(--accent-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4%;
+            z-index: 1000;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
 
-          /* Estilos del aviso emergente estilo Toast/Push */
-    .notice-banner {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
-        max-width: 380px;
-        background: rgba(20, 20, 35, 0.95);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(233, 69, 96, 0.5);
-        border-left: 5px solid #e94560;
-        border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(233, 69, 96, 0.2);
-        padding: 16px;
-        animation: slideIn 0.5s ease-out;
-    }
+        .radio-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 220px;
+        }
 
-    .notice-content {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #fff;
-    }
+        .radio-cover {
+            width: 45px;
+            height: 45px;
+            background-color: #222;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: var(--accent-red);
+            font-size: 1.1rem;
+            border: 1px solid #333;
+        }
 
-    .notice-icon {
-        font-size: 1.8rem;
-    }
+        .radio-details {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .notice-content strong {
-        display: block;
-        color: #00fff0;
-        font-size: 0.95rem;
-    }
+        .radio-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--accent-red);
+            text-transform: uppercase;
+        }
 
-    .notice-content p {
-        margin: 4px 0 0;
-        font-size: 0.85rem;
-        color: #ccc;
-    }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            animation: blink 1.2s infinite;
+        }
 
-    .notice-close {
-        background: #e94560;
-        color: white;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 0.8rem;
-        transition: transform 0.2s, background 0.2s;
-    }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
 
-    .notice-close:hover {
-        background: #ff5277;
-        transform: scale(1.05);
-    }
+        .radio-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
 
-    @keyframes slideIn {
-        from { transform: translateY(100px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
+        .radio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-play-radio {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--accent-red);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+        }
+
+        .equalizer {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 18px;
+        }
+
+        .bar {
+            width: 3px;
+            background-color: var(--accent-red);
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        .equalizer.playing .bar {
+            animation: equalize 1s infinite alternate ease-in-out;
+        }
+
+        .equalizer.playing .bar:nth-child(1) { animation-delay: 0.1s; }
+        .equalizer.playing .bar:nth-child(2) { animation-delay: 0.4s; }
+        .equalizer.playing .bar:nth-child(3) { animation-delay: 0.2s; }
+        .equalizer.playing .bar:nth-child(4) { animation-delay: 0.5s; }
+
+        @keyframes equalize {
+            0% { height: 4px; }
+            100% { height: 18px; }
+        }
+
+        .volume-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 70px;
+            height: 4px;
+            border-radius: 2px;
+            background: #888;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* PIE DE PÁGINA (FOOTER) */
+        footer {
+            background-color: var(--bg-header);
+            border-top: 1px solid var(--accent-border);
+            padding: 40px 5% 20px 5%;
+            margin-top: 50px;
+        }
+
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-col h3 {
+            font-size: 1.05rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--accent-red);
+            padding-left: 8px;
+            color: var(--text-primary);
+        }
+
+        .footer-col p, .footer-col ul {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-col ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--accent-red);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid var(--accent-border);
+            padding-top: 20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
     </style>
 </head>
 <body>
 
-<!-- Banner de Sitio en Construcción -->
-<div id="construction-banner" class="notice-banner">
-    <div class="notice-content">
-        <span class="notice-icon">🚧</span>
-        <div>
-            <strong>¡Sitio en construcción!</strong>
-            <p>Estamos trabajando en nuevas funciones. La señal de audio funciona con normalidad.</p>
-        </div>
-        <button class="notice-close" onclick="closeNotice()">Aceptar</button>
-    </div>
-</div>
-
-
-<script>
-    function closeNotice() {
-        const banner = document.getElementById('construction-banner');
-        banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-        banner.style.opacity = '0';
-        banner.style.transform = 'translateY(20px)';
-        setTimeout(() => banner.remove(), 400);
-    }
-</script>
-    
+    <!-- Encabezado -->
     <header>
-        <h1>📻 Mi Radio Online</h1>
-        <p>Música, energía y noticias en vivo</p>
+        <div class="logo">E-<span>RADIO</span></div>
+        
+        <nav>
+            <a href="#inicio">Inicio</a>
+            <a href="#pedir-canciones">Pedir Canciones</a>
+            <a href="#programacion">Programación</a>
+            <a href="#contacto">Contacto</a>
+        </nav>
+
+        <div class="header-actions">
+            <div class="social-links">
+                <!-- TikTok -->
+                <a href="https://www.tiktok.com" target="_blank" rel="noopener" title="TikTok">
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M12.525 2.003c1.31 0 2.422.031 3.23.082V6.2a8.68 8.68 0 0 1-2.912-.512 8.78 8.78 0 0 1-2.484-1.46V15.5c0 1.253-.406 2.422-1.156 3.375C8.303 19.922 7.11 20.5 5.75 20.5 3.125 20.5 1 18.375 1 15.75c0-2.625 2.125-4.75 4.75-4.75.406 0 .812.062 1.219.156V15.1c-.281-.094-.594-.156-.938-.156-1.125 0-2.031.906-2.031 2.031 0 1.125.906 2.031 2.031 2.031 1.094 0 1.969-.875 2.031-1.938V2h3.469z"/></svg>
+                </a>
+                <!-- Instagram -->
+                <a href="https://www.instagram.com" target="_blank" rel="noopener" title="Instagram">
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </a>
+                <!-- WhatsApp -->
+                <a href="https://api.whatsapp.com/send?phone=540000" target="_blank" rel="noopener" title="WhatsApp">
+                    <svg class="social-icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99 0-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                </a>
+            </div>
+
+            <button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema">🌙</button>
+        </div>
     </header>
 
-    <div class="player-card">
-        <span class="live-badge">🔴 EN VIVO</span>
-        <h3 style="margin: 10px 0 5px;">Programa: Mañanas Activas</h3>
-        <audio controls autoplay>
-            <source src="TU_URL_DE_STREAMING_AQUI" type="audio/mpeg">
-            Tu navegador no soporta el reproductor de audio.
-        </audio>
+    <!-- Contenido -->
+    <div class="container" id="inicio">
+        <!-- Noticias RSS -->
+        <main>
+            <h2 class="section-title">Últimas Noticias (LOS40)</h2>
+            <div id="rss-news" class="news-grid">
+                <div class="loading">Cargando las últimas noticias...</div>
+            </div>
+        </main>
+
+        <!-- Columna Lateral -->
+        <aside>
+            <!-- Widget Video de la semana -->
+            <div class="sidebar-box">
+                <h2 class="section-title">Video de la Semana</h2>
+                <div class="video-container">
+                    <iframe 
+                        src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ" 
+                        title="Video de la Semana" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+
+            <!-- Widget Ranking Top 4 -->
+            <div class="sidebar-box">
+                <h2 class="section-title">Ranking de la Semana</h2>
+                <div class="ranking-list">
+                    <div class="ranking-item">
+                        <div class="ranking-number">1</div>
+                        <div class="ranking-info">
+                            <div class="ranking-song">Si Antes Te Hubiera Conocido</div>
+                            <div class="ranking-artist">Karol G</div>
+                        </div>
+                        <audio class="mini-audio" controls controlsList="nodownload noplaybackrate" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                    </div>
+
+                    <div class="ranking-item">
+                        <div class="ranking-number">2</div>
+                        <div class="ranking-info">
+                            <div class="ranking-song">Touching the Sky</div>
+                            <div class="ranking-artist">Rauw Alejandro</div>
+                        </div>
+                        <audio class="mini-audio" controls controlsList="nodownload noplaybackrate" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
+                    </div>
+
+                    <div class="ranking-item">
+                        <div class="ranking-number">3</div>
+                        <div class="ranking-info">
+                            <div class="ranking-song">Luna</div>
+                            <div class="ranking-artist">Feid</div>
+                        </div>
+                        <audio class="mini-audio" controls controlsList="nodownload noplaybackrate" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"></audio>
+                    </div>
+
+                    <div class="ranking-item">
+                        <div class="ranking-number">4</div>
+                        <div class="ranking-info">
+                            <div class="ranking-song">Monaco</div>
+                            <div class="ranking-artist">Bad Bunny</div>
+                        </div>
+                        <audio class="mini-audio" controls controlsList="nodownload noplaybackrate" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"></audio>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 
-    <div class="container">
-        <div class="glass-box">
-            <h2 style="margin-top: 0; color: #e94560;">📅 Grilla de Programación</h2>
-            <table class="schedule">
-                <thead>
-                    <tr>
-                        <th>Horario</th>
-                        <th>Programa</th>
-                        <th>Locutor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>08:00 - 12:00</td>
-                        <td>Mañanas Activas</td>
-                        <td>Juan Pérez</td>
-                    </tr>
-                    <tr>
-                        <td>12:00 - 14:00</td>
-                        <td>Resumen Informativo</td>
-                        <td>María Gómez</td>
-                    </tr>
-                    <tr>
-                        <td>14:00 - 18:00</td>
-                        <td>Tarde de Éxitos</td>
-                        <td>Carlos Rodríguez</td>
-                    </tr>
-                </tbody>
-            </table>
+    <!-- REPRODUCTOR FLOTANTE DE RADIO -->
+    <div class="radio-player-bar">
+        <div class="radio-info">
+            <div class="radio-cover">ER</div>
+            <div class="radio-details">
+                <div class="radio-status">
+                    <span class="live-dot"></span> EN VIVO
+                </div>
+                <div class="radio-title">E-Radio Rosario</div>
+            </div>
         </div>
+
+        <div class="radio-controls">
+            <div id="equalizer" class="equalizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+
+            <button id="playBtn" class="btn-play-radio" title="Reproducir Radio">&#9654;</button>
+        </div>
+
+        <div class="volume-box">
+            <span>&#128266;</span>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="0.8">
+        </div>
+
+        <audio id="radioAudio" src="https://stream.zeno.fm/idqecp6rhbnvv"></audio>
     </div>
 
-    <footer>
-        <p>© 2026 Mi Radio FM · Todos los derechos reservados</p>
+    <!-- Pie de Página (Footer) -->
+    <footer id="contacto">
+        <div class="footer-grid">
+            <!-- Quiénes Somos -->
+            <div class="footer-col">
+                <h3>Quiénes Somos</h3>
+                <p>Somos <strong>E-Radio</strong>, la radio líder en música urbana, hits del momento y entretenimiento. Transmitiendo con la mejor energía desde Rosario, Santa Fe para todo el país.</p>
+            </div>
+
+            <!-- Enlaces Rápidos -->
+            <div class="footer-col">
+                <h3>Enlaces Rápidos</h3>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#pedir-canciones">Pedir canciones</a></li>
+                    <li><a href="#programacion">Programación</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </div>
+
+            <!-- Contacto -->
+            <div class="footer-col">
+                <h3>Contacto</h3>
+                <ul>
+                    <li>📍 Rosario, Santa Fe, Argentina</li>
+                    <li>📱 WhatsApp: <a href="https://api.whatsapp.com/send?phone=540000" target="_blank" rel="noopener">+540000</a></li>
+                    <li>✉️ Email: contacto@eradio.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 E-Radio Rosario, Santa Fe. Todos los derechos reservados.</p>
+        </div>
     </footer>
 
+    <!-- Lógica JavaScript -->
+    <script>
+        // 1. Apagar / Encender la luz (Theme Toggle)
+        const themeToggleBtn = document.getElementById('themeToggle');
+        
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+        });
+
+        // 2. Cargar RSS de LOS40 mediante AllOrigins
+        const RSS_URL = 'https://los40.com/rss/los40/portada.xml'; 
+        const PROXY_URL = `https://api.allorigins.win/get?url=${encodeURIComponent(RSS_URL)}`;
+
+        async function cargarNoticiasRSS() {
+            const container = document.getElementById('rss-news');
+            try {
+                const response = await fetch(PROXY_URL);
+                const data = await response.json();
+                
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(data.contents, "text/xml");
+                const items = xmlDoc.querySelectorAll("item");
+
+                if (items && items.length > 0) {
+                    container.innerHTML = '';
+                    Array.from(items).slice(0, 6).forEach(item => {
+                        const title = item.querySelector("title")?.textContent || "Noticia de Música";
+                        const link = item.querySelector("link")?.textContent || "#";
+                        const pubDate = item.querySelector("pubDate")?.textContent || "";
+                        
+                        let image = "https://via.placeholder.com/400x200/161616/ffffff?text=LOS40+Musica";
+                        const enclosure = item.querySelector("enclosure");
+                        const mediaContent = item.getElementsByTagName("media:content")[0];
+                        
+                        if (enclosure && enclosure.getAttribute("url")) {
+                            image = enclosure.getAttribute("url");
+                        } else if (mediaContent && mediaContent.getAttribute("url")) {
+                            image = mediaContent.getAttribute("url");
+                        }
+
+                        const fechaFormateada = pubDate ? new Date(pubDate).toLocaleDateString() : 'Reciente';
+
+                        const card = document.createElement('div');
+                        card.className = 'news-card';
+                        card.innerHTML = `
+                            <img src="${image}" alt="${title}" onerror="this.src='https://via.placeholder.com/400x200/161616/ffffff?text=LOS40'">
+                            <div class="news-card-content">
+                                <a href="${link}" target="_blank" rel="noopener" class="news-card-title">${title}</a>
+                                <div class="news-card-date">${fechaFormateada}</div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = '<div class="loading">No se pudieron cargar las noticias.</div>';
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="loading">Error de conexión al cargar el feed de noticias.</div>';
+            }
+        }
+        cargarNoticiasRSS();
+
+        // 3. Reproductor Flotante de Radio
+        const audio = document.getElementById('radioAudio');
+        const playBtn = document.getElementById('playBtn');
+        const equalizer = document.getElementById('equalizer');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        let isPlaying = false;
+
+        playBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                audio.play();
+                playBtn.innerHTML = '&#10074;&#10074;';
+                equalizer.classList.add('playing');
+                isPlaying = true;
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '&#9654;';
+                equalizer.classList.remove('playing');
+                isPlaying = false;
+            }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value;
+        });
+    </script>
 </body>
 </html>
