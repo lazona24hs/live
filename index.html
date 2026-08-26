@@ -16,6 +16,9 @@
             --accent-red: #e50914;
             --accent-border: #222222;
             --icon-color: #ffffff;
+            /* Variable de color para el botón En Directo en modo oscuro (Gris oscuro) */
+            --btn-directo-bg: #333333;
+            --btn-directo-hover: #444444;
         }
 
         body.light-mode {
@@ -29,6 +32,9 @@
             --accent-red: #e50914;
             --accent-border: #e0e0e0;
             --icon-color: #111111;
+            /* Variable de color para el botón En Directo en modo claro (Gris) */
+            --btn-directo-bg: #888888;
+            --btn-directo-hover: #777777;
         }
 
         * {
@@ -167,9 +173,9 @@
             gap: 15px;
         }
 
-        /* BOTÓN EN DIRECTO */
+        /* BOTÓN EN DIRECTO MODIFICADO */
         .btn-directo {
-            background-color: var(--accent-red);
+            background-color: var(--btn-directo-bg);
             color: #ffffff;
             border: none;
             padding: 6px 12px;
@@ -181,13 +187,13 @@
             align-items: center;
             gap: 6px;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(229, 9, 20, 0.4);
-            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, background-color 0.3s;
         }
 
         .btn-directo:hover {
             transform: scale(1.05);
-            background-color: #ff1e27;
+            background-color: var(--btn-directo-hover);
         }
 
         .social-links {
