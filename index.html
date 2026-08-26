@@ -850,15 +850,15 @@
     <header>
         <div class="logo">E-<span>RADIO</span></div>
         <nav>
-            <a href="#inicio">Inicio</a>
+            <a onclick="cargarNoticiasPorCategoria('inicio', 'Noticias de Actualidad')">Inicio</a>
 
             <!-- NOTICIAS CON CATEGORÍAS -->
             <div class="dropdown">
                 <a>Noticias ▾</a>
                 <div class="dropdown-content">
-                    <a href="#economia">Economía</a>
-                    <a href="#politica">Política</a>
-                    <a href="#internacional">Internacional</a>
+                    <a onclick="cargarNoticiasPorCategoria('economia', 'Noticias de Economía')">Economía</a>
+                    <a onclick="cargarNoticiasPorCategoria('politica', 'Noticias de Política')">Política</a>
+                    <a onclick="cargarNoticiasPorCategoria('internacional', 'Noticias Internacionales')">Internacional</a>
                 </div>
             </div>
 
@@ -866,9 +866,9 @@
             <div class="dropdown">
                 <a>Deportes ▾</a>
                 <div class="dropdown-content">
-                    <a href="#fútbol">Fútbol</a>
-                    <a href="#básquet">Básquet</a>
-                    <a href="#deportes-motor">Motor</a>
+                    <a onclick="cargarNoticiasPorCategoria('futbol', 'Noticias de Fútbol')">Fútbol</a>
+                    <a onclick="cargarNoticiasPorCategoria('basquet', 'Noticias de Básquet')">Básquet</a>
+                    <a onclick="cargarNoticiasPorCategoria('motor', 'Deportes de Motor')">Motor</a>
                 </div>
             </div>
 
@@ -876,8 +876,8 @@
             <div class="dropdown">
                 <a>Espectáculos ▾</a>
                 <div class="dropdown-content">
-                    <a href="#musica">Música</a>
-                    <a href="#espectaculos">Espectáculos</a>
+                    <a onclick="cargarNoticiasPorCategoria('musica', 'Noticias de Música')">Música</a>
+                    <a onclick="cargarNoticiasPorCategoria('espectaculos', 'Noticias de Espectáculos')">Espectáculos</a>
                 </div>
             </div>
 
@@ -921,7 +921,7 @@
 
     <div class="container" id="inicio">
         <main>
-            <h2 class="section-title">Noticias de Actualidad</h2>
+            <h2 id="titulo-seccion-noticias" class="section-title">Noticias de Actualidad</h2>
             <div id="rss-news" class="news-grid">
                 <div class="loading">Cargando las últimas noticias...</div>
             </div>
@@ -1155,7 +1155,7 @@
             <div class="footer-col">
                 <h3>Enlaces Rápidos</h3>
                 <ul>
-                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a onclick="cargarNoticiasPorCategoria('inicio', 'Noticias de Actualidad')" style="cursor:pointer;">Inicio</a></li>
                     <li><a onclick="abrirModalPedirCancion(event)" style="cursor:pointer;">Pedir canciones</a></li>
                     <li><a onclick="abrirModalProgramacion(event)" style="cursor:pointer;">Programación</a></li>
                     <li><a onclick="abrirModalContacto(event)" style="cursor:pointer;">Contacto</a></li>
@@ -1181,6 +1181,19 @@
         const NUMERO_WHATSAPP = "540000";
         // ID de la emisora en Zeno.fm
         const ZENO_STREAM_ID = "idqecp6rhbnvv";
+
+        // Diccionario de feeds RSS por categoría
+        const RSS_CATEGORIAS = {
+            inicio: 'https://news.google.com/rss?hl=es-419&gl=US&ceid=US:es-419',
+            economia: 'https://news.google.com/rss/search?q=economia&hl=es-419&gl=US&ceid=US:es-419',
+            politica: 'https://news.google.com/rss/search?q=politica&hl=es-419&gl=US&ceid=US:es-419',
+            internacional: 'https://news.google.com/rss/search?q=internacional&hl=es-419&gl=US&ceid=US:es-419',
+            futbol: 'https://news.google.com/rss/search?q=futbol&hl=es-419&gl=US&ceid=US:es-419',
+            basquet: 'https://news.google.com/rss/search?q=basquet&hl=es-419&gl=US&ceid=US:es-419',
+            motor: 'https://news.google.com/rss/search?q=deportes+motor&hl=es-419&gl=US&ceid=US:es-419',
+            musica: 'https://news.google.com/rss/search?q=musica&hl=es-419&gl=US&ceid=US:es-419',
+            espectaculos: 'https://news.google.com/rss/search?q=espectaculos&hl=es-419&gl=US&ceid=US:es-419'
+        };
 
         // 1. Reloj, Fecha y Clima
         function actualizarFechaHora() {
@@ -1219,10 +1232,18 @@
             themeToggleBtn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
         });
 
-        // 3. Cargar RSS Noticias Actualidad (Primera con Imagen grande, siguientes con Miniatura)
-        async function cargarNoticiasRSS() {
+        // 3. Cargar Noticias por Categoría
+        async function cargarNoticiasPorCategoria(categoria = 'inicio', tituloPersonalizado = 'Noticias de Actualidad') {
             const container = document.getElementById('rss-news');
-            const rssUrl = 'https://news.google.com/rss?hl=es-419&gl=US&ceid=US:es-419';
+            const tituloSeccion = document.getElementById('titulo-seccion-noticias');
+            
+            if (tituloSeccion) {
+                tituloSeccion.textContent = tituloPersonalizado;
+            }
+
+            container.innerHTML = '<div class="loading">Cargando noticias...</div>';
+
+            const rssUrl = RSS_CATEGORIAS[categoria] || RSS_CATEGORIAS['inicio'];
             const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
             try {
@@ -1264,13 +1285,15 @@
                         container.appendChild(card);
                     });
                 } else {
-                    container.innerHTML = '<div class="loading">No se pudieron cargar las noticias actuales.</div>';
+                    container.innerHTML = '<div class="loading">No se pudieron cargar las noticias para esta categoría.</div>';
                 }
             } catch (error) {
-                container.innerHTML = '<div class="loading">Error de conexión al cargar el feed de noticias.</div>';
+                container.innerHTML = '<div class="loading">Error de conexión al cargar las noticias.</div>';
             }
         }
-        cargarNoticiasRSS();
+        
+        // Carga inicial
+        cargarNoticiasPorCategoria('inicio', 'Noticias de Actualidad');
 
         // 4. METADATOS EN TIEMPO REAL DESDE ZENO.FM
         async function actualizarMetadatosZeno() {
