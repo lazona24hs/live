@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>OBS Lower Third - Noticias con Descripción</title>
+  <title>OBS Lower Third - Noticias</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
@@ -59,16 +59,13 @@
       color: #ffffff;
     }
 
-    /* Descripción corta */
+    /* Descripción corta sin puntos suspensivos */
     .description {
       font-size: 0.88rem;
       font-weight: 400;
       margin: 0;
       line-height: 1.35;
-      color: #e1bee7; /* Violeta claro para diferenciarse del título */
-      display: -webkit-box;
-      -webkit-line-clamp: 2; /* Limita la descripción a un máximo de 2 líneas */
-      -webkit-box-orient: vertical;
+      color: #e1bee7; /* Violeta claro */
       overflow: hidden;
     }
 
@@ -93,11 +90,19 @@
     let newsList = [];
     let currentIndex = 0;
 
-    // Función auxiliar para quitar etiquetas HTML del texto de descripción
-    function cleanHTML(htmlString) {
+    // Quita etiquetas HTML, recorta el texto a palabras completas y borra cualquier punto al final
+    function cleanAndFormatText(htmlString, maxLength = 140) {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlString;
-      return tempDiv.textContent || tempDiv.innerText || '';
+      let text = (tempDiv.textContent || tempDiv.innerText || '').trim();
+
+      if (text.length > maxLength) {
+        // Corta en el espacio previo para no dejar palabras a la mitad
+        text = text.substring(0, text.lastIndexOf(' ', maxLength));
+      }
+
+      // Elimina puntos suspensivos o signos de puntuación sobrantes al final
+      return text.replace(/[\.\s]+$/, '');
     }
 
     // Obtener las noticias desde el feed
@@ -110,7 +115,7 @@
         if (data.items && data.items.length > 0) {
           newsList = data.items.map(item => ({
             title: item.title,
-            description: cleanHTML(item.description || item.content || '')
+            description: cleanAndFormatText(item.description || item.content || '')
           }));
           currentIndex = 0;
           displayNextNews();
@@ -149,10 +154,10 @@
     // Inicializar carga de noticias
     fetchNews();
 
-    // Rotar cada noticia completa cada 12 segundos para dar tiempo a leer la descripción
+    // Rotar noticia cada 12 segundos
     setInterval(displayNextNews, 12000);
 
-    // Actualizar el feed de noticias en segundo plano cada 2 horas
+    // Actualizar noticias desde internet cada 2 horas
     setInterval(fetchNews, 2 * 60 * 60 * 1000);
   </script>
 
