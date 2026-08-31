@@ -2,9 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>OBS Lower Third - Noticias</title>
+  <title>OBS Lower Third - Grilla de Estrenos TV</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap');
 
     body {
       margin: 0;
@@ -17,56 +17,89 @@
       position: relative;
     }
 
-    /* Ubicación en la esquina inferior izquierda */
+    /* Ubicación en la parte inferior izquierda */
     .lower-third {
       position: absolute;
       bottom: 40px;
       left: 40px;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.6);
     }
 
-    /* Etiqueta / Encabezado */
+    /* Badge Superior */
     .badge {
       background: #ffffff;
       color: #6a1b9a;
-      font-weight: 800;
+      font-weight: 900;
       font-size: 0.85rem;
       text-transform: uppercase;
-      padding: 4px 12px;
-      letter-spacing: 1.5px;
+      padding: 5px 14px;
+      letter-spacing: 2px;
       width: fit-content;
     }
 
-    /* Contenedor principal rectangular violeta */
-    .content-box {
+    /* Estructura de Grilla */
+    .grid-container {
       background: #6a1b9a;
-      color: #ffffff;
-      padding: 14px 20px;
-      width: 650px;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 230px);
+      gap: 12px;
       box-sizing: border-box;
       opacity: 1;
-      transition: opacity 0.4s ease-in-out;
+      transition: opacity 0.5s ease-in-out;
     }
 
-    /* Titular destacado */
-    .title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      margin: 0 0 6px 0;
-      line-height: 1.25;
+    /* Tarjeta individual de estreno */
+    .card {
+      background: rgba(0, 0, 0, 0.25);
+      border-left: 4px solid #ffffff;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .channel {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #ffffff;
+      color: #6a1b9a;
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    .date {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #e1bee7;
+    }
+
+    .show-title {
+      font-size: 1.05rem;
+      font-weight: 900;
       color: #ffffff;
+      margin: 4px 0;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Descripción corta sin puntos suspensivos */
-    .description {
-      font-size: 0.88rem;
-      font-weight: 400;
-      margin: 0;
-      line-height: 1.35;
-      color: #e1bee7; /* Violeta claro */
-      overflow: hidden;
+    .time {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffd54f; /* Tono dorado para resaltar el horario */
+      margin-top: 4px;
     }
 
     .fade-out {
@@ -77,88 +110,75 @@
 <body>
 
   <div class="lower-third">
-    <div class="badge">Últimas Noticias</div>
-    <div class="content-box" id="content-box">
-      <h1 class="title" id="title">Cargando noticias...</h1>
-      <p class="description" id="description"></p>
+    <div class="badge">Próximos Estrenos TV</div>
+    <div class="grid-container" id="grid">
+      <!-- Las tarjetas se generan dinámicamente -->
     </div>
   </div>
 
   <script>
-    const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.clarin.com/rss/lo-ultimo/';
-    
-    let newsList = [];
-    let currentIndex = 0;
+    // Base de datos de estrenos (se puede sustituir por un endpoint API)
+    let premiereBatches = [
+      [
+        { show: "Gran Hermano", channel: "Telefe", date: "HOY", time: "22:30 HS" },
+        { show: "Los Los 8 Escalones", channel: "Eltrece", date: "MAÑANA", time: "21:15 HS" },
+        { show: "MasterChef Celebrity", channel: "Telefe", date: "DOMINGO", time: "22:00 HS" }
+      ],
+      [
+        { show: "Bailando por un Sueño", channel: "América", date: "LUNES", time: "21:45 HS" },
+        { show: "Periodismo Para Todos", channel: "Eltrece", date: "DOMINGO", time: "22:00 HS" },
+        { show: "PH: Podemos Hablar", channel: "Telefe", date: "SÁBADO", time: "22:15 HS" }
+      ],
+      [
+        { show: "Bendita TV", channel: "El Nueve", date: "HOY", time: "20:30 HS" },
+        { show: "LAM", channel: "América", date: "HOY", time: "20:00 HS" },
+        { show: "Cine AFA: La Película", channel: "TV Pública", date: "VIERNES", time: "21:00 HS" }
+      ]
+    ];
 
-    // Quita etiquetas HTML, recorta el texto a palabras completas y borra cualquier punto al final
-    function cleanAndFormatText(htmlString, maxLength = 140) {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlString;
-      let text = (tempDiv.textContent || tempDiv.innerText || '').trim();
+    let currentBatchIndex = 0;
 
-      if (text.length > maxLength) {
-        // Corta en el espacio previo para no dejar palabras a la mitad
-        text = text.substring(0, text.lastIndexOf(' ', maxLength));
-      }
-
-      // Elimina puntos suspensivos o signos de puntuación sobrantes al final
-      return text.replace(/[\.\s]+$/, '');
-    }
-
-    // Obtener las noticias desde el feed
-    async function fetchNews() {
-      try {
-        const response = await fetch(RSS_URL);
-        if (!response.ok) throw new Error('Error al obtener noticias');
-        
-        const data = await response.json();
-        if (data.items && data.items.length > 0) {
-          newsList = data.items.map(item => ({
-            title: item.title,
-            description: cleanAndFormatText(item.description || item.content || '')
-          }));
-          currentIndex = 0;
-          displayNextNews();
-        }
-      } catch (error) {
-        console.error('Error cargando noticias:', error);
-        document.getElementById('title').textContent = 'No se pudieron cargar las noticias';
-      }
-    }
-
-    // Mostrar el titular y su descripción con animación
-    function displayNextNews() {
-      if (newsList.length === 0) return;
-
-      const contentBox = document.getElementById('content-box');
-      const titleElem = document.getElementById('title');
-      const descElem = document.getElementById('description');
-
-      // Animación de salida (fade-out)
-      contentBox.classList.add('fade-out');
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      grid.classList.add('fade-out');
 
       setTimeout(() => {
-        const currentItem = newsList[currentIndex];
-        
-        titleElem.textContent = currentItem.title;
-        descElem.textContent = currentItem.description;
+        grid.innerHTML = '';
+        const currentBatch = premiereBatches[currentBatchIndex];
 
-        // Animación de entrada (fade-in)
-        contentBox.classList.remove('fade-out');
+        currentBatch.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div class="card-header">
+              <span class="channel">${item.channel}</span>
+              <span class="date">${item.date}</span>
+            </div>
+            <div class="show-title">${item.show}</div>
+            <div class="time">⏰ ${item.time}</div>
+          `;
+          grid.appendChild(card);
+        });
 
-        // Pasar a la siguiente noticia
-        currentIndex = (currentIndex + 1) % newsList.length;
-      }, 400);
+        grid.classList.remove('fade-out');
+        currentBatchIndex = (currentBatchIndex + 1) % premiereBatches.length;
+      }, 500);
     }
 
-    // Inicializar carga de noticias
-    fetchNews();
+    // Simula la actualización remota de datos cada 2 horas
+    function fetchNewPremieres() {
+      console.log("Actualizando lista de estrenos...");
+      // Aquí se conectaría con tu servidor/API para renovar la lista
+    }
 
-    // Rotar noticia cada 12 segundos
-    setInterval(displayNextNews, 12000);
+    // Inicialización
+    renderGrid();
 
-    // Actualizar noticias desde internet cada 2 horas
-    setInterval(fetchNews, 2 * 60 * 60 * 1000);
+    // Rotar la tanda de 3 programas en pantalla cada 12 segundos
+    setInterval(renderGrid, 12000);
+
+    // Actualizar datos del servidor cada 2 horas (7.200.000 ms)
+    setInterval(fetchNewPremieres, 2 * 60 * 60 * 1000);
   </script>
 
 </body>
