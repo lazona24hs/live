@@ -39,25 +39,26 @@
       width: fit-content;
     }
 
-    /* Cuerpo principal con el fondo violeta */
+    /* Contenedor principal rígido */
     .content-box {
       background: #6a1b9a;
       color: #ffffff;
       padding: 12px 24px;
-      min-width: 400px;
-      max-width: 700px;
+      width: 650px; /* Ancho fijo para mantener la forma del overlay */
+      overflow: hidden; /* Oculta el texto fuera del área visible */
+      white-space: nowrap;
+      position: relative;
     }
 
-    /* Animación para el cambio de noticia */
+    /* Texto de la noticia */
     .headline {
+      display: inline-block;
       font-size: 1.2rem;
       font-weight: 700;
       margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       opacity: 1;
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0.4s ease-in-out;
+      will-change: transform;
     }
 
     .fade-out {
@@ -69,17 +70,18 @@
 
   <div class="lower-third">
     <div class="badge">Últimas Noticias</div>
-    <div class="content-box">
-      <p class="headline" id="headline">Cargando noticias...</p>
+    <div class="content-box" id="content-box">
+      <span class="headline" id="headline">Cargando noticias...</span>
     </div>
   </div>
 
   <script>
-    // URL del feed RSS convertida a JSON mediante API pública
+    // URL del feed RSS convertida a JSON
     const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.clarin.com/rss/lo-ultimo/';
     
     let newsList = [];
     let currentIndex = 0;
+    let rotationTimer = null;
 
     // Obtener las noticias desde el feed
     async function fetchNews() {
@@ -99,29 +101,68 @@
       }
     }
 
-    // Rotar al siguiente titular con animación suave
+    // Rotar al siguiente titular y animar desplazamiento si es largo
     function displayNextNews() {
       if (newsList.length === 0) return;
 
-      const headlineElement = document.getElementById('headline');
-      
-      // Animación de salida
-      headlineElement.classList.add('fade-out');
+      const headline = document.getElementById('headline');
+      const box = document.getElementById('content-box');
+
+      // Detener cualquier temporizador activo previo
+      if (rotationTimer) clearTimeout(rotationTimer);
+
+      // Desvanecer el texto anterior
+      headline.classList.add('fade-out');
 
       setTimeout(() => {
-        headlineElement.textContent = newsList[currentIndex];
-        headlineElement.classList.remove('fade-out');
+        // Limpiar animaciones CSS previas
+        headline.style.animation = 'none';
+        headline.style.transform = 'translateX(0)';
+
+        // Cambiar el texto de la noticia
+        headline.textContent = newsList[currentIndex];
+        headline.classList.remove('fade-out');
+
+        // Calcular si el texto sobrepasa el ancho de la caja
+        const textWidth = headline.offsetWidth;
+        const boxWidth = box.clientWidth - 48; // Descontamos paddings (24px + 24px)
+
+        let displayDuration = 8000; // Tiempo por defecto si la noticia entra entera (8s)
+
+        if (textWidth > boxWidth) {
+          const overflowDistance = textWidth - boxWidth;
+          // Asigna velocidad de desplazamiento proporcional a la longitud
+          const scrollDuration = Math.max(5, overflowDistance / 35); 
+          
+          // Crear la animación de marquesina en tiempo real
+          headline.style.animation = `scrollText ${scrollDuration}s linear 1.5s forwards`;
+          
+          // Tiempo total visible: Pausa inicial (1.5s) + Desplazamiento + Pausa final (2s)
+          displayDuration = (1.5 + scrollDuration + 2) * 1000;
+        }
+
+        // Pasar al siguiente titular
         currentIndex = (currentIndex + 1) % newsList.length;
-      }, 500); // 500ms coincide con el tiempo de CSS transition
+
+        // Programar la siguiente noticia
+        rotationTimer = setTimeout(displayNextNews, displayDuration);
+      }, 400);
     }
+
+    // Insertar estilos dinámicos para el scroll en la página
+    const styleSheet = document.createElement("style");
+    styleSheet.textContent = `
+      @keyframes scrollText {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(calc(-100% + ${650 - 48}px)); }
+      }
+    `;
+    document.head.appendChild(styleSheet);
 
     // Inicializar carga de noticias
     fetchNews();
 
-    // Rotar titular en pantalla cada 10 segundos
-    setInterval(displayNextNews, 10000);
-
-    // Volver a consultar el servidor para buscar noticias nuevas cada 2 horas
+    // Actualizar noticias nuevas desde internet cada 2 horas
     setInterval(fetchNews, 2 * 60 * 60 * 1000);
   </script>
 
