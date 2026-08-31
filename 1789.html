@@ -38,17 +38,6 @@
       background-color: #000000; /* Separador en color negro */
     }
 
-    .weather-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .weather-icon {
-      font-size: 1.6rem;
-      line-height: 1;
-    }
-
     .weather {
       font-size: 1.5rem;
       font-weight: 700;
@@ -61,28 +50,13 @@
   <div class="overlay-container">
     <div class="clock" id="clock">00:00</div>
     <div class="divider"></div>
-    <div class="weather-container">
-      <span class="weather-icon" id="weather-icon">🌡️</span>
-      <div class="weather" id="weather">-- °C</div>
-    </div>
+    <div class="weather" id="weather">-- °C</div>
   </div>
 
   <script>
     // Configura tus coordenadas geográficas (Por defecto: Rosario, Santa Fe, Argentina)
     const LATITUDE = -32.9468;
     const LONGITUDE = -60.6393;
-
-    // Función para obtener el icono según el código de clima WMO de Open-Meteo
-    function getWeatherIcon(code) {
-      if (code === 0) return '☀️'; // Despejado
-      if (code >= 1 && code <= 3) return '⛅'; // Parcialmente nublado / Nublado
-      if (code >= 45 && code <= 48) return '🌫️'; // Niebla
-      if (code >= 51 && code <= 67) return '🌧️'; // Llovizna / Lluvia
-      if (code >= 71 && code <= 77) return '❄️'; // Nieve
-      if (code >= 80 && code <= 82) return '🌦️'; // Chubascos
-      if (code >= 95 && code <= 99) return '🌩️'; // Tormenta
-      return '🌡️'; // Icono por defecto
-    }
 
     // Actualizador del Reloj calculando manualmente UTC-3 (Hora oficial de Argentina)
     function updateClock() {
@@ -101,9 +75,9 @@
       document.getElementById('clock').textContent = `${hours}:${minutes}`;
     }
 
-    // Consulta de temperatura y estado del clima usando Open-Meteo
+    // Consulta de temperatura usando Open-Meteo
     async function updateWeather() {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m,weather_code`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m`;
       
       try {
         const response = await fetch(url);
@@ -111,10 +85,8 @@
         
         const data = await response.json();
         const temp = Math.round(data.current.temperature_2m);
-        const code = data.current.weather_code;
 
         document.getElementById('weather').textContent = `${temp} °C`;
-        document.getElementById('weather-icon').textContent = getWeatherIcon(code);
       } catch (error) {
         console.error('Error obteniendo el clima:', error);
       }
