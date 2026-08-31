@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Overlay - Logo, Reloj y Clima</title>
+  <style>
+    /* Importamos una fuente limpia de estilo digital/moderno */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: transparent; /* Fondo transparente para OBS */
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Contenedor vertical principal */
+    .overlay-container {
+      display: inline-flex;
+      flex-direction: column; /* Alineación vertical (Logo arriba, datos abajo) */
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: #6a1b9a; /* Fondo violeta sólido y rectangular */
+      border-radius: 0px;  /* Bordes rectangulares */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Estilo para el logo en la parte superior */
+    .channel-logo {
+      height: 40px; /* Ajusta la altura según tu imagen */
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Fila inferior horizontal con Hora y Temperatura */
+    .data-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .clock {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #ffffff; /* Letra blanca para la hora */
+    }
+
+    .divider {
+      width: 2px;
+      height: 22px;
+      background-color: #000000; /* Separador en color negro */
+    }
+
+    .weather {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #000000; /* Letra negra para el tiempo */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-container">
+    <!-- Logo arriba -->
+    <img src="https://i.imgur.com/qvTgthc.png" alt="Logo" class="channel-logo" id="logo">
+    
+    <!-- Hora y Clima debajo -->
+    <div class="data-row">
+      <div class="clock" id="clock">00:00</div>
+      <div class="divider"></div>
+      <div class="weather" id="weather">-- °C</div>
+    </div>
+  </div>
+
+  <script>
+    // Configura tus coordenadas geográficas (Por defecto: Rosario, Santa Fe, Argentina)
+    const LATITUDE = -32.9468;
+    const LONGITUDE = -60.6393;
+
+    // Actualizador del Reloj calculando manualmente UTC-3 (Hora oficial de Argentina)
+    function updateClock() {
+      const now = new Date();
+      
+      // Convertimos el tiempo local del servidor/VPS a UTC milisegundos
+      const utcTimestamp = now.getTime() + (now.getTimezoneOffset() * 60000);
+      
+      // Aplicamos el offset fijo de Argentina (UTC - 3 horas)
+      const argentinaOffset = -3 * 60 * 60 * 1000;
+      const argentinaDate = new Date(utcTimestamp + argentinaOffset);
+
+      const hours = String(argentinaDate.getHours()).padStart(2, '0');
+      const minutes = String(argentinaDate.getMinutes()).padStart(2, '0');
+
+      document.getElementById('clock').textContent = `${hours}:${minutes}`;
+    }
+
+    // Consulta de temperatura usando Open-Meteo
+    async function updateWeather() {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m`;
+      
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error al conectar con el servicio del clima');
+        
+        const data = await response.json();
+        const temp = Math.round(data.current.temperature_2m);
+
+        document.getElementById('weather').textContent = `${temp} °C`;
+      } catch (error) {
+        console.error('Error obteniendo el clima:', error);
+      }
+    }
+
+    // Inicialización del reloj
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Inicialización del clima (cada 2 horas = 7,200,000 milisegundos)
+    updateWeather();
+    setInterval(updateWeather, 2 * 60 * 60 * 1000);
+  </script>
+
+</body>
+</html>
