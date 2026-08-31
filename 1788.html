@@ -12,7 +12,6 @@
       padding: 0;
       background-color: transparent; /* Fondo transparente para OBS */
       font-family: 'Montserrat', sans-serif;
-      color: #ffffff;
       overflow: hidden;
     }
 
@@ -20,11 +19,9 @@
       display: inline-flex;
       align-items: center;
       gap: 15px;
-      padding: 10px 20px;
-      background: rgba(0, 0, 0, 0.65); /* Fondo semitransparente estilo HUD */
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(5px);
+      padding: 12px 24px;
+      background: #6a1b9a; /* Fondo violeta sólido y rectangular */
+      border-radius: 0px;  /* Bordes rectangulares */
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
 
@@ -32,18 +29,30 @@
       font-size: 2rem;
       font-weight: 700;
       letter-spacing: 1px;
+      color: #ffffff; /* Letra blanca para la hora */
     }
 
     .divider {
       width: 2px;
       height: 25px;
-      background-color: rgba(255, 255, 255, 0.3);
+      background-color: #000000; /* Separador en color negro */
+    }
+
+    .weather-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .weather-icon {
+      font-size: 1.6rem;
+      line-height: 1;
     }
 
     .weather {
       font-size: 1.5rem;
-      font-weight: 500;
-      color: #4da6ff; /* Accent de color para la temperatura */
+      font-weight: 700;
+      color: #000000; /* Letra negra para el tiempo */
     }
   </style>
 </head>
@@ -52,13 +61,28 @@
   <div class="overlay-container">
     <div class="clock" id="clock">00:00</div>
     <div class="divider"></div>
-    <div class="weather" id="weather">-- °C</div>
+    <div class="weather-container">
+      <span class="weather-icon" id="weather-icon">🌡️</span>
+      <div class="weather" id="weather">-- °C</div>
+    </div>
   </div>
 
   <script>
     // Configura tus coordenadas geográficas (Por defecto: Rosario, Santa Fe, Argentina)
     const LATITUDE = -32.9468;
     const LONGITUDE = -60.6393;
+
+    // Función para obtener el icono según el código de clima WMO de Open-Meteo
+    function getWeatherIcon(code) {
+      if (code === 0) return '☀️'; // Despejado
+      if (code >= 1 && code <= 3) return '⛅'; // Parcialmente nublado / Nublado
+      if (code >= 45 && code <= 48) return '🌫️'; // Niebla
+      if (code >= 51 && code <= 67) return '🌧️'; // Llovizna / Lluvia
+      if (code >= 71 && code <= 77) return '❄️'; // Nieve
+      if (code >= 80 && code <= 82) return '🌦️'; // Chubascos
+      if (code >= 95 && code <= 99) return '🌩️'; // Tormenta
+      return '🌡️'; // Icono por defecto
+    }
 
     // Actualizador del Reloj calculando manualmente UTC-3 (Hora oficial de Argentina)
     function updateClock() {
@@ -77,9 +101,9 @@
       document.getElementById('clock').textContent = `${hours}:${minutes}`;
     }
 
-    // Consulta de temperatura usando Open-Meteo (Sin API Key)
+    // Consulta de temperatura y estado del clima usando Open-Meteo
     async function updateWeather() {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}&current=temperature_2m,weather_code`;
       
       try {
         const response = await fetch(url);
@@ -87,7 +111,10 @@
         
         const data = await response.json();
         const temp = Math.round(data.current.temperature_2m);
+        const code = data.current.weather_code;
+
         document.getElementById('weather').textContent = `${temp} °C`;
+        document.getElementById('weather-icon').textContent = getWeatherIcon(code);
       } catch (error) {
         console.error('Error obteniendo el clima:', error);
       }
