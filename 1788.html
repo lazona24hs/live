@@ -60,18 +60,21 @@
     const LATITUDE = -32.9468;
     const LONGITUDE = -60.6393;
 
-    // Actualizador del Reloj forzado a la hora oficial de Argentina (UTC-3)
+    // Actualizador del Reloj calculando manualmente UTC-3 (Hora oficial de Argentina)
     function updateClock() {
       const now = new Date();
       
-      const formatter = new Intl.DateTimeFormat('es-AR', {
-        timeZone: 'America/Argentina/Buenos_Aires',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      });
+      // Convertimos el tiempo local del servidor/VPS a UTC milisegundos
+      const utcTimestamp = now.getTime() + (now.getTimezoneOffset() * 60000);
+      
+      // Aplicamos el offset fijo de Argentina (UTC - 3 horas)
+      const argentinaOffset = -3 * 60 * 60 * 1000;
+      const argentinaDate = new Date(utcTimestamp + argentinaOffset);
 
-      document.getElementById('clock').textContent = formatter.format(now);
+      const hours = String(argentinaDate.getHours()).padStart(2, '0');
+      const minutes = String(argentinaDate.getMinutes()).padStart(2, '0');
+
+      document.getElementById('clock').textContent = `${hours}:${minutes}`;
     }
 
     // Consulta de temperatura usando Open-Meteo (Sin API Key)
@@ -90,7 +93,7 @@
       }
     }
 
-    // Inicialización del reloj (actualiza cada segundo para sincronización exacta)
+    // Inicialización del reloj
     updateClock();
     setInterval(updateClock, 1000);
 
