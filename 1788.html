@@ -60,12 +60,18 @@
     const LATITUDE = -32.9468;
     const LONGITUDE = -60.6393;
 
-    // Actualizador del Reloj (formato 24h sin segundos)
+    // Actualizador del Reloj forzado a la hora oficial de Argentina (UTC-3)
     function updateClock() {
       const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      document.getElementById('clock').textContent = `${hours}:${minutes}`;
+      
+      const formatter = new Intl.DateTimeFormat('es-AR', {
+        timeZone: 'America/Argentina/Buenos_Aires',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+
+      document.getElementById('clock').textContent = formatter.format(now);
     }
 
     // Consulta de temperatura usando Open-Meteo (Sin API Key)
@@ -84,7 +90,7 @@
       }
     }
 
-    // Inicialización del reloj (revisa cada segundo para hacer la transición de minuto exacta)
+    // Inicialización del reloj (actualiza cada segundo para sincronización exacta)
     updateClock();
     setInterval(updateClock, 1000);
 
