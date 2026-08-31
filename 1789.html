@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>OBS Lower Third - Noticias</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&display=swap');
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: transparent;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Ubicación en la esquina inferior izquierda */
+    .lower-third {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Etiqueta / Encabezado */
+    .badge {
+      background: #ffffff;
+      color: #6a1b9a;
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      letter-spacing: 1.5px;
+      width: fit-content;
+    }
+
+    /* Cuerpo principal con el fondo violeta */
+    .content-box {
+      background: #6a1b9a;
+      color: #ffffff;
+      padding: 12px 24px;
+      min-width: 400px;
+      max-width: 700px;
+    }
+
+    /* Animación para el cambio de noticia */
+    .headline {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 1;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .fade-out {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="lower-third">
+    <div class="badge">Últimas Noticias</div>
+    <div class="content-box">
+      <p class="headline" id="headline">Cargando noticias...</p>
+    </div>
+  </div>
+
+  <script>
+    // URL del feed RSS convertida a JSON mediante API pública
+    const RSS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=https://www.clarin.com/rss/lo-ultimo/';
+    
+    let newsList = [];
+    let currentIndex = 0;
+
+    // Obtener las noticias desde el feed
+    async function fetchNews() {
+      try {
+        const response = await fetch(RSS_URL);
+        if (!response.ok) throw new Error('Error al obtener noticias');
+        
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          newsList = data.items.map(item => item.title);
+          currentIndex = 0;
+          displayNextNews();
+        }
+      } catch (error) {
+        console.error('Error cargando noticias:', error);
+        document.getElementById('headline').textContent = 'No se pudieron cargar las noticias';
+      }
+    }
+
+    // Rotar al siguiente titular con animación suave
+    function displayNextNews() {
+      if (newsList.length === 0) return;
+
+      const headlineElement = document.getElementById('headline');
+      
+      // Animación de salida
+      headlineElement.classList.add('fade-out');
+
+      setTimeout(() => {
+        headlineElement.textContent = newsList[currentIndex];
+        headlineElement.classList.remove('fade-out');
+        currentIndex = (currentIndex + 1) % newsList.length;
+      }, 500); // 500ms coincide con el tiempo de CSS transition
+    }
+
+    // Inicializar carga de noticias
+    fetchNews();
+
+    // Rotar titular en pantalla cada 10 segundos
+    setInterval(displayNextNews, 10000);
+
+    // Volver a consultar el servidor para buscar noticias nuevas cada 2 horas
+    setInterval(fetchNews, 2 * 60 * 60 * 1000);
+  </script>
+
+</body>
+</html>
