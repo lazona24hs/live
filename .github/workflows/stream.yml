@@ -1,4 +1,4 @@
-name: Transmisión 24/7 en Cloudflare R2
+name: EradioTV
 
 on:
   schedule:
@@ -6,20 +6,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Transmisión Principal (Video en bucle + Audio Zeno FM)
   arroyo:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Instalar FFmpeg y rclone
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg rclone
-
-      - name: Configurar rclone para R2
-        run: |
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg rclone
+      - run: |
           mkdir -p ~/.config/rclone
           cat <<EOF > ~/.config/rclone/rclone.conf
           [r2]
@@ -31,16 +23,12 @@ jobs:
           endpoint = ${{ secrets.R2_ENDPOINT }}
           s3_force_path_style = true
           EOF
-
-      - name: Transmitir Principal
-        run: |
+      - run: |
           mkdir -p /tmp/hls
-
           while true; do
             rclone sync /tmp/hls r2:${{ secrets.R2_BUCKET }}
             sleep 2
           done &
-
           ffmpeg -re -f concat -safe 0 -i lista.txt -stream_loop -1 \
             -i "https://stream.zeno.fm/idqecp6rhbnvv" \
             -map 0:v:0 -map 1:a:0 \
@@ -48,77 +36,3 @@ jobs:
             -c:a aac -b:a 128k -ar 44100 \
             -f hls -hls_time 4 -hls_list_size 6 \
             -hls_flags delete_segments /tmp/hls/live.m3u8
-
-  # 2. Restream 9er (Nueve Litoral)
-  el9er:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Instalar FFmpeg y rclone
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg rclone
-
-      - name: Configurar rclone para R2
-        run: |
-          mkdir -p ~/.config/rclone
-          cat <<EOF > ~/.config/rclone/rclone.conf
-          [r2]
-          type = s3
-          provider = Other
-          env_auth = false
-          access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
-          secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          endpoint = ${{ secrets.R2_ENDPOINT }}
-          s3_force_path_style = true
-          EOF
-
-      - name: Transmitir el9er
-        run: |
-          mkdir -p /tmp/hls_el9er
-
-          while true; do
-            rclone sync /tmp/hls_el9er r2:${{ secrets.R2_BUCKET }}
-            sleep 2
-          done &
-
-          ffmpeg -re -i "http://45.226.28.9:8085/Live/6fb1f0e7eb180cb1c37841fb3e8a163b/local-nuevelitoral_480.m3u8" \
-            -c copy \
-            -f hls -hls_time 4 -hls_list_size 6 \
-            -hls_flags delete_segments /tmp/hls_el9er/el9er.m3u8
-
-  # 3. Restream Canal A03J
-  canala03j:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Instalar FFmpeg y rclone
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg rclone
-
-      - name: Configurar rclone para R2
-        run: |
-          mkdir -p ~/.config/rclone
-          cat <<EOF > ~/.config/rclone/rclone.conf
-          [r2]
-          type = s3
-          provider = Other
-          env_auth = false
-          access_key_id = ${{ secrets.R2_ACCESS_KEY_ID }}
-          secret_access_key = ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          endpoint = ${{ secrets.R2_ENDPOINT }}
-          s3_force_path_style = true
-          EOF
-
-      - name: Transmitir canala03j
-        run: |
-          mkdir -p /tmp/hls_a03j
-
-          while true; do
-            rclone sync /tmp/hls_a03j r2:${{ secrets.R2_BUCKET }}
-            sleep 2
-          done &
-
-          ffmpeg -re -i "http://181.209.38.115:8000/play/a03j/index.m3u8" \
-            -c copy \
-            -f hls -hls_time 4 -hls_list_size 6 \
-            -hls_flags delete_segments /tmp/hls_a03j/canala03j.m3u8
