@@ -77,7 +77,7 @@ jobs:
           mkdir -p /tmp/hls_el9er
 
           while true; do
-            rclone sync /tmp/hls_el9er r2:${{ secrets.R2_BUCKET }}/el9er
+            rclone sync /tmp/hls_el9er r2:${{ secrets.R2_BUCKET }}
             sleep 2
           done &
 
@@ -114,7 +114,7 @@ jobs:
           mkdir -p /tmp/hls_a03j
 
           while true; do
-            rclone sync /tmp/hls_a03j r2:${{ secrets.R2_BUCKET }}/canala03j
+            rclone sync /tmp/hls_a03j r2:${{ secrets.R2_BUCKET }}
             sleep 2
           done &
 
