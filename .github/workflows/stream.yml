@@ -34,27 +34,34 @@ jobs:
       - name: Generar lista de reproducción
         run: |
           shopt -s nullglob
-          mp4_files=(*.mp4)
+          mp4_files=(clips/*.mp4)
           if [ ${#mp4_files[@]} -eq 0 ]; then
-            echo "Error: No se encontraron archivos .mp4 en la raíz del repositorio."
+            # Si no hay videos en clips/, busca en la raíz
+            mp4_files=(*.mp4)
+          fi
+          if [ ${#mp4_files[@]} -eq 0 ]; then
+            echo "Error: No se encontraron archivos .mp4 en la raíz ni en la carpeta clips/."
             exit 1
           fi
+          > lista.txt
           for f in "${mp4_files[@]}"; do
             echo "file '$f'" >> lista.txt
           done
 
-      - name: Transmitir y Sincronizar en tiempo real
+      - name: Transmitir (Video en bucle + Audio en vivo) y Sincronizar
         run: |
           mkdir -p /tmp/hls
 
-          # Sincronización continua en segundo plano sin flags incompatibles
+          # Sincronización continua en segundo plano hacia R2
           while true; do
             rclone sync /tmp/hls r2:${{ secrets.R2_BUCKET }}
             sleep 2
           done &
 
-          # Transmisión HLS con FFmpeg
+          # FFmpeg combina el video de lista.txt con la señal de audio en vivo
           ffmpeg -re -f concat -safe 0 -i lista.txt -stream_loop -1 \
+            -i "https://stream.zeno.fm/idqecp6rhbnvv" \
+            -map 0:v:0 -map 1:a:0 \
             -c:v libx264 -preset ultrafast -b:v 2000k -g 60 \
             -c:a aac -b:a 128k -ar 44100 \
             -f hls -hls_time 4 -hls_list_size 6 \
