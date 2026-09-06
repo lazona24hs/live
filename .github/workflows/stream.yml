@@ -1,13 +1,12 @@
-name: Stream 24/7 a Cloudflare R2
+name: Transmisión 24/7 en Cloudflare R2
 
 on:
   schedule:
-    # Reinicia el proceso cada 5 horas para evitar el límite de tiempo de GitHub (max 6h)
     - cron: '0 */5 * * *'
   workflow_dispatch:
 
 jobs:
-  stream:
+  arroyo:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del código
@@ -34,17 +33,27 @@ jobs:
 
       - name: Generar lista de reproducción
         run: |
-          # Genera un archivo lista.txt leyendo todos los .mp4 del repo
-          for f in *.mp4; do echo "file '$f'" >> lista.txt; done
+          shopt -s nullglob
+          mp4_files=(*.mp4)
+          if [ ${#mp4_files[@]} -eq 0 ]; then
+            echo "Error: No se encontraron archivos .mp4 en la raíz del repositorio."
+            exit 1
+          fi
+          for f in "${mp4_files[@]}"; do
+            echo "file '$f'" >> lista.txt
+          done
 
       - name: Transmitir y Sincronizar en tiempo real
         run: |
           mkdir -p /tmp/hls
-          
-          # Inicia rclone en segundo plano para subir los segmentos a R2 continuamente
-          rclone sync /tmp/hls r2:${{ secrets.R2_BUCKET }} --realtime-delay 1s --poll-interval 2s &
-          
-          # Ejecuta FFmpeg para codificar el HLS
+
+          # Sincronización continua en segundo plano sin flags incompatibles
+          while true; do
+            rclone sync /tmp/hls r2:${{ secrets.R2_BUCKET }}
+            sleep 2
+          done &
+
+          # Transmisión HLS con FFmpeg
           ffmpeg -re -f concat -safe 0 -i lista.txt -stream_loop -1 \
             -c:v libx264 -preset ultrafast -b:v 2000k -g 60 \
             -c:a aac -b:a 128k -ar 44100 \
