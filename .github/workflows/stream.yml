@@ -31,23 +31,6 @@ jobs:
           s3_force_path_style = true
           EOF
 
-      - name: Generar lista de reproducción
-        run: |
-          shopt -s nullglob
-          mp4_files=(clips/*.mp4)
-          if [ ${#mp4_files[@]} -eq 0 ]; then
-            # Si no hay videos en clips/, busca en la raíz
-            mp4_files=(*.mp4)
-          fi
-          if [ ${#mp4_files[@]} -eq 0 ]; then
-            echo "Error: No se encontraron archivos .mp4 en la raíz ni en la carpeta clips/."
-            exit 1
-          fi
-          > lista.txt
-          for f in "${mp4_files[@]}"; do
-            echo "file '$f'" >> lista.txt
-          done
-
       - name: Transmitir (Video en bucle + Audio en vivo) y Sincronizar
         run: |
           mkdir -p /tmp/hls
@@ -58,7 +41,7 @@ jobs:
             sleep 2
           done &
 
-          # FFmpeg combina el video de lista.txt con la señal de audio en vivo
+          # Lee directamente tu lista.txt guardada en el repo
           ffmpeg -re -f concat -safe 0 -i lista.txt -stream_loop -1 \
             -i "https://stream.zeno.fm/idqecp6rhbnvv" \
             -map 0:v:0 -map 1:a:0 \
