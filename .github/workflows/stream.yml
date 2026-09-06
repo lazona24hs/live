@@ -26,7 +26,7 @@ jobs:
       - run: |
           mkdir -p /tmp/hls
           while true; do
-            rclone sync /tmp/hls r2:${{ secrets.R2_BUCKET }}
+            rclone copy /tmp/hls r2:${{ secrets.R2_BUCKET }}
             sleep 2
           done &
           ffmpeg -re -f concat -safe 0 -i lista.txt -stream_loop -1 \
